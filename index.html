@@ -2,144 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Blade of the Fallen Kingdom</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* Critical inline styles for immediate render */
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            overflow: hidden;
-            font-family: 'Georgia', 'Times New Roman', serif;
-        }
-        #loading-screen {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #0a0a0a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            color: #c4a46c;
-        }
-        #loading-screen h1 {
-            font-size: 2.5em;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            margin-bottom: 30px;
-            text-shadow: 0 0 20px rgba(196,164,108,0.5);
-        }
-        .loading-bar-container {
-            width: 300px;
-            height: 4px;
-            background: #1a1a1a;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .loading-bar-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #8b6914, #c4a46c, #8b6914);
-            transition: width 0.3s ease;
-        }
-        #loading-text {
-            margin-top: 15px;
-            font-size: 0.85em;
-            color: #665533;
-            letter-spacing: 0.1em;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <h1>Blade of the Fallen Kingdom</h1>
-        <div class="loading-bar-container">
-            <div class="loading-bar-fill" id="loading-bar"></div>
-        </div>
-        <div id="loading-text">Initializing...</div>
-    </div>
-
-    <!-- Game Canvas Container -->
     <div id="game-container">
-        <canvas id="game-canvas"></canvas>
-    </div>
-
-    <!-- UI Overlay -->
-    <div id="ui-overlay" style="display:none;">
-        <!-- HUD -->
-        <div id="hud" style="display:none;">
-            <div id="hud-left">
-                <div id="health-bar-container" class="bar-container">
-                    <div id="health-bar-bg" class="bar-bg"></div>
-                    <div id="health-bar" class="bar-fill health"></div>
-                    <div id="health-bar-damage" class="bar-damage"></div>
-                    <span class="bar-label">HP</span>
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Title Screen -->
+        <div id="title-screen" class="screen active">
+            <div class="title-bg"></div>
+            <div class="title-content">
+                <div class="title-particles" id="title-particles"></div>
+                <h1 class="game-title">
+                    <span class="title-line1">Blade of the</span>
+                    <span class="title-line2">Fallen Kingdom</span>
+                </h1>
+                <div class="title-subtitle">A lone warrior returns</div>
+                <div class="title-menu">
+                    <button class="menu-btn" id="btn-new-game">New Game</button>
+                    <button class="menu-btn" id="btn-continue" style="display:none;">Continue</button>
+                    <button class="menu-btn" id="btn-chapters">Chapters</button>
+                    <button class="menu-btn" id="btn-controls">Controls</button>
+                    <button class="menu-btn" id="btn-settings">Settings</button>
                 </div>
-                <div id="stamina-bar-container" class="bar-container">
-                    <div id="stamina-bar-bg" class="bar-bg"></div>
-                    <div id="stamina-bar" class="bar-fill stamina"></div>
-                    <span class="bar-label">ST</span>
-                </div>
-            </div>
-            <div id="hud-center">
-                <div id="chapter-display"></div>
-                <div id="checkpoint-notification" class="notification">Checkpoint Reached</div>
-            </div>
-            <div id="hud-right">
-                <div id="combo-counter" style="display:none;">
-                    <span id="combo-count">0</span>
-                    <span id="combo-label">COMBO</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Boss Health Bar -->
-        <div id="boss-health-container" style="display:none;">
-            <div id="boss-name">Enemy Commander</div>
-            <div id="boss-health-bar-container" class="bar-container boss-bar">
-                <div id="boss-health-bar-bg" class="bar-bg"></div>
-                <div id="boss-health-bar" class="bar-fill boss-health"></div>
+                <div class="title-footer">Use keyboard or touch controls to play</div>
             </div>
         </div>
 
         <!-- Cinematic Overlay -->
-        <div id="cinematic-overlay" style="display:none;">
-            <div id="letterbox-top" class="letterbox"></div>
-            <div id="letterbox-bottom" class="letterbox"></div>
-            <div id="cinematic-text-container">
-                <div id="cinematic-speaker"></div>
-                <div id="cinematic-text"></div>
+        <div id="cinematic-overlay" class="screen">
+            <div class="letterbox-top"></div>
+            <div class="letterbox-bottom"></div>
+            <div class="cinematic-text" id="cinematic-text"></div>
+            <div class="cinematic-dialogue" id="cinematic-dialogue">
+                <div class="dialogue-speaker" id="dialogue-speaker"></div>
+                <div class="dialogue-text" id="dialogue-text"></div>
             </div>
-            <div id="cinematic-skip">Press ESC to skip</div>
+            <div class="cinematic-skip">Press ESC to skip</div>
         </div>
 
-        <!-- Title Screen -->
-        <div id="title-screen" style="display:none;">
-            <div id="title-particles"></div>
-            <div id="title-content">
-                <div id="title-subtitle">A Tale of Ruin and Redemption</div>
-                <h1 id="title-name">BLADE OF THE<br>FALLEN KINGDOM</h1>
-                <div id="title-menu">
-                    <button class="menu-btn" id="btn-new-game">New Game</button>
-                    <button class="menu-btn" id="btn-continue" style="display:none;">Continue</button>
-                    <button class="menu-btn" id="btn-chapters" style="display:none;">Chapters</button>
-                    <button class="menu-btn" id="btn-controls">Controls</button>
-                    <button class="menu-btn" id="btn-settings">Settings</button>
+        <!-- HUD -->
+        <div id="hud" class="screen">
+            <div class="hud-top">
+                <div class="hud-left">
+                    <div class="player-info">
+                        <div class="player-name">KAEL</div>
+                        <div class="bar-container health-bar">
+                            <div class="bar-fill" id="health-fill"></div>
+                            <div class="bar-text" id="health-text">100/100</div>
+                        </div>
+                        <div class="bar-container stamina-bar">
+                            <div class="bar-fill" id="stamina-fill"></div>
+                        </div>
+                    </div>
                 </div>
-                <div id="title-footer">Use Arrow Keys / WASD to move • J/K to attack • L to dodge • Space to block</div>
+                <div class="hud-center">
+                    <div class="chapter-display" id="chapter-display"></div>
+                </div>
+                <div class="hud-right">
+                    <div class="boss-info" id="boss-info" style="display:none;">
+                        <div class="boss-name" id="boss-name"></div>
+                        <div class="bar-container boss-bar">
+                            <div class="bar-fill" id="boss-health-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hud-bottom">
+                <div class="checkpoint-notification" id="checkpoint-notify">
+                    <span>⚔ Checkpoint Reached ⚔</span>
+                </div>
+                <div class="combo-display" id="combo-display"></div>
             </div>
         </div>
 
         <!-- Pause Menu -->
-        <div id="pause-menu" style="display:none;">
-            <div id="pause-overlay-bg"></div>
-            <div id="pause-content">
-                <h2>PAUSED</h2>
+        <div id="pause-menu" class="screen">
+            <div class="pause-overlay"></div>
+            <div class="pause-content">
+                <h2>Paused</h2>
                 <button class="menu-btn" id="btn-resume">Resume</button>
                 <button class="menu-btn" id="btn-restart-checkpoint">Restart Checkpoint</button>
                 <button class="menu-btn" id="btn-pause-controls">Controls</button>
@@ -149,28 +95,35 @@
         </div>
 
         <!-- Controls Screen -->
-        <div id="controls-screen" style="display:none;">
-            <div id="controls-overlay-bg"></div>
-            <div id="controls-content">
-                <h2>CONTROLS</h2>
+        <div id="controls-screen" class="screen">
+            <div class="pause-overlay"></div>
+            <div class="controls-content">
+                <h2>Controls</h2>
                 <div class="controls-grid">
-                    <div class="control-item"><span class="key">A/D or ←/→</span><span class="action">Move</span></div>
-                    <div class="control-item"><span class="key">W or ↑</span><span class="action">Jump</span></div>
-                    <div class="control-item"><span class="key">J</span><span class="action">Light Attack</span></div>
-                    <div class="control-item"><span class="key">K</span><span class="action">Heavy Attack</span></div>
-                    <div class="control-item"><span class="key">L</span><span class="action">Dodge</span></div>
-                    <div class="control-item"><span class="key">Space</span><span class="action">Block</span></div>
-                    <div class="control-item"><span class="key">ESC / P</span><span class="action">Pause</span></div>
+                    <div class="control-item"><span class="key">A/D</span><span>Move</span></div>
+                    <div class="control-item"><span class="key">W</span><span>Jump</span></div>
+                    <div class="control-item"><span class="key">J</span><span>Light Attack</span></div>
+                    <div class="control-item"><span class="key">K</span><span>Heavy Attack</span></div>
+                    <div class="control-item"><span class="key">L</span><span>Dodge</span></div>
+                    <div class="control-item"><span class="key">SPACE</span><span>Block</span></div>
+                    <div class="control-item"><span class="key">ESC</span><span>Pause</span></div>
+                </div>
+                <div class="combo-list">
+                    <h3>Combos</h3>
+                    <div class="control-item"><span class="key">J→J→J</span><span>Triple Slash</span></div>
+                    <div class="control-item"><span class="key">J→J→K</span><span>Power Finisher</span></div>
+                    <div class="control-item"><span class="key">W+J</span><span>Air Slash</span></div>
+                    <div class="control-item"><span class="key">L+J</span><span>Counter Strike</span></div>
                 </div>
                 <button class="menu-btn" id="btn-controls-back">Back</button>
             </div>
         </div>
 
         <!-- Settings Screen -->
-        <div id="settings-screen" style="display:none;">
-            <div id="settings-overlay-bg"></div>
-            <div id="settings-content">
-                <h2>SETTINGS</h2>
+        <div id="settings-screen" class="screen">
+            <div class="pause-overlay"></div>
+            <div class="settings-content">
+                <h2>Settings</h2>
                 <div class="setting-item">
                     <label>Music Volume</label>
                     <input type="range" id="music-volume" min="0" max="100" value="70">
@@ -184,68 +137,66 @@
                     <input type="checkbox" id="screen-shake" checked>
                 </div>
                 <div class="setting-item">
-                    <label>Show FPS</label>
-                    <input type="checkbox" id="show-fps">
+                    <label>Particles</label>
+                    <input type="checkbox" id="particles-toggle" checked>
                 </div>
                 <button class="menu-btn" id="btn-settings-back">Back</button>
             </div>
         </div>
 
+        <!-- Chapter Select -->
+        <div id="chapters-screen" class="screen">
+            <div class="pause-overlay"></div>
+            <div class="chapters-content">
+                <h2>Chapters</h2>
+                <div class="chapter-list" id="chapter-list"></div>
+                <button class="menu-btn" id="btn-chapters-back">Back</button>
+            </div>
+        </div>
+
         <!-- Game Over Screen -->
-        <div id="game-over-screen" style="display:none;">
-            <div id="game-over-bg"></div>
-            <div id="game-over-content">
-                <h2 id="game-over-title">FALLEN</h2>
-                <p id="game-over-subtitle">The kingdom remains in darkness...</p>
+        <div id="gameover-screen" class="screen">
+            <div class="gameover-overlay"></div>
+            <div class="gameover-content">
+                <h2 class="gameover-title">Fallen in Battle</h2>
+                <p class="gameover-quote">"The kingdom still waits..."</p>
                 <button class="menu-btn" id="btn-retry">Retry from Checkpoint</button>
-                <button class="menu-btn" id="btn-go-title">Return to Title</button>
+                <button class="menu-btn" id="btn-gameover-title">Return to Title</button>
             </div>
         </div>
 
-        <!-- Chapter Complete Screen -->
-        <div id="chapter-complete-screen" style="display:none;">
-            <div id="chapter-complete-bg"></div>
-            <div id="chapter-complete-content">
-                <h2 id="chapter-complete-title">Chapter Complete</h2>
-                <p id="chapter-complete-name"></p>
-                <div id="chapter-stats"></div>
-                <button class="menu-btn" id="btn-next-chapter">Continue</button>
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen">
+            <div class="loading-content">
+                <div class="loading-sword"></div>
+                <div class="loading-text">Loading...</div>
+                <div class="loading-bar-container">
+                    <div class="loading-bar-fill" id="loading-bar"></div>
+                </div>
             </div>
-        </div>
-
-        <!-- Dialogue Box -->
-        <div id="dialogue-box" style="display:none;">
-            <div id="dialogue-portrait"></div>
-            <div id="dialogue-content">
-                <div id="dialogue-name"></div>
-                <div id="dialogue-text"></div>
-            </div>
-            <div id="dialogue-continue">▼</div>
         </div>
 
         <!-- Mobile Controls -->
         <div id="mobile-controls" style="display:none;">
-            <div id="mobile-left-controls">
-                <button class="mobile-btn" id="mobile-left">◄</button>
-                <button class="mobile-btn" id="mobile-right">►</button>
+            <div class="mobile-left">
+                <button class="mobile-btn" id="m-left" data-action="left">◀</button>
+                <button class="mobile-btn" id="m-right" data-action="right">▶</button>
+                <button class="mobile-btn mobile-jump" id="m-jump" data-action="jump">▲</button>
             </div>
-            <div id="mobile-right-controls">
-                <button class="mobile-btn mobile-action" id="mobile-jump">▲</button>
-                <button class="mobile-btn mobile-action" id="mobile-attack">⚔</button>
-                <button class="mobile-btn mobile-action" id="mobile-heavy">⚡</button>
-                <button class="mobile-btn mobile-action" id="mobile-dodge">↺</button>
-                <button class="mobile-btn mobile-action" id="mobile-block">🛡</button>
+            <div class="mobile-right">
+                <button class="mobile-btn mobile-action" id="m-attack" data-action="attack">⚔</button>
+                <button class="mobile-btn mobile-action" id="m-heavy" data-action="heavy">💥</button>
+                <button class="mobile-btn mobile-action" id="m-dodge" data-action="dodge">↩</button>
+                <button class="mobile-btn mobile-action" id="m-block" data-action="block">🛡</button>
             </div>
         </div>
-
-        <!-- FPS Counter -->
-        <div id="fps-counter" style="display:none;">FPS: 60</div>
     </div>
 
     <!-- Scripts - loaded in order -->
     <script src="js/audio.js"></script>
     <script src="js/save.js"></script>
     <script src="js/camera.js"></script>
+    <script src="js/particles.js"></script>
     <script src="js/combat.js"></script>
     <script src="js/player.js"></script>
     <script src="js/enemy.js"></script>
